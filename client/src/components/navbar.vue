@@ -19,7 +19,12 @@ export default {
     return {
       user: auth.user
     }
+  },
+
+  created () {
+    auth.checkAuth()
   }
+
 }
 </script>
 

@@ -64,12 +64,14 @@
 
 import env from '@/env/'
 import auth from '@/auth/'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'login',
 
   data () {
     return {
+      email: '',
       username: '',
       password: '',
       user: auth.user,
@@ -78,7 +80,11 @@ export default {
     }
   },
 
+  beforeCreated () {
+  },
+
   created () {
+    auth.checkAuth()
     this.profile = auth.getUser()
   },
 
@@ -91,7 +97,12 @@ export default {
       }).then((response) => {
         this.type = 'signin'
       }).catch((error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error!',
+          text: error.data.error,
+          type: 'error',
+          confirmButtonText: 'Close'
+        })
       })
     },
 
@@ -108,7 +119,12 @@ export default {
         this.profile = auth.getUser()
         this.$store.dispatch('SET_HANDLE', this.username)
       }).catch((error) => {
-        console.log(error)
+        Swal.fire({
+          title: 'Error!',
+          text: error.data.error,
+          type: 'error',
+          confirmButtonText: 'Close'
+        })
       })
     },
 

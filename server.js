@@ -78,6 +78,7 @@ var server = app.listen(port, () => {
 let io =  socket(server);
 
 io.on("connection", function(socket){
+
   console.log("Socket Connection Established with ID :"+ socket.id)
 	// sockets.push(socket.id)
 	// console.log(sockets)
@@ -109,15 +110,23 @@ io.on("connection", function(socket){
 
 app.get('/chat/:handle', async (req,res) => {
 	try {
+		var finalRes = []
 		var results = await message.find()
 		for (result in results) {
-			if(!(results[result].receiver == req.params.handle ||
-				results[result].handle == req.params.handle ||
-				results[result].receiver == 'all')){
-					results.splice(result, 1)
-				}
+			if(results[result].receiver == req.params.handle
+				||	results[result].handle == req.params.handle
+				||	results[result].receiver == 'all' ){
+					finalRes.push(results[result])
+			}
 		}
-		res.send(results)
+
+		finalRes.sort(function(a,b){
+			var c = new Date(a.created);
+			var d = new Date(b.created);
+			return c-d;
+		});
+		
+		res.send(finalRes)
 	} catch (err) {
 		res.status(400).json({ error: err.errmsg })
 	}

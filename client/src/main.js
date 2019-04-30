@@ -13,7 +13,7 @@ import { store } from './store'
 Vue.use(Vuetify)
 Vue.use(VueResource)
 Vue.use(new VueSocketio({
-  debug: true,
+  debug: false,
   connection: env.URL
 })
 )

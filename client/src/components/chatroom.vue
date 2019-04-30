@@ -71,6 +71,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import auth from '@/auth/'
+// import steganography from '@/steganography/'
 import Swal from 'sweetalert2'
 
 export default {
@@ -85,21 +86,30 @@ export default {
 
   components: {
   },
+
   computed: {
     ...mapGetters(['CHATS', 'HANDLE'])
   },
+
+  created () {
+    auth.checkAuth()
+  },
+
   mounted () {
-    if(this.user.authenticated){
+    if (this.user.authenticated) {
       this.$store.dispatch('SET_CHAT', auth.getUser().username)
       this.$socket.emit('join', {username: auth.getUser().username})
     }
   },
+
   updated () {
     var container = this.$refs.chatContainer
     container.scrollTop = container.scrollHeight
   },
+
   sockets: {
     connect: function () {
+      this.$socket.emit('join', {username: auth.getUser().username})
       // console.log('socket connected')
     },
     chat: function (val) {
@@ -109,46 +119,57 @@ export default {
 
   methods: {
     async sendMessage () {
-      let handle = this.$store.getters.HANDLE
-      if (this.message) {
-        if(this.message.charAt(0) == '@'){
-          var receiver = this.message.replace(/ .*/,'').slice(1);
-          let userExists = await auth.checkIfUserExists(receiver)
-          if(userExists){
-            this.message = this.message.substr(this.message.indexOf(" ") + 1);
-            if(this.message.charAt(0) != '@'){
-              let message = {
-                handle: handle,
-                receiver: receiver,
-                message: this.message
+      await auth.checkAuth()
+      if (this.user.authenticated) {
+        let handle = this.$store.getters.HANDLE
+        if (this.message) {
+          if (this.message.charAt(0) === '@') {
+            var receiver = this.message.replace(/ .*/, '').slice(1)
+            let userExists = await auth.checkIfUserExists(receiver)
+            if (userExists) {
+              this.message = this.message.substr(this.message.indexOf(' ') + 1)
+              if (this.message.charAt(0) !== '@') {
+                let message = {
+                  handle: handle,
+                  receiver: receiver,
+                  message: this.message
+                }
+                await this.$socket.emit('chatprivate', message)
+                this.message = ''
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'Please type your message',
+                  type: 'error',
+                  confirmButtonText: 'Close'
+                })
               }
-              await this.$socket.emit('chatprivate', message)
-              this.message = ''
-            }else{
+            } else {
               Swal.fire({
                 title: 'Error!',
-                text: 'Please type your message',
+                text: 'User doesn\'t exist',
                 type: 'error',
                 confirmButtonText: 'Close'
               })
+              this.message = ''
             }
-          }else{
-            Swal.fire({
-              title: 'Error!',
-              text: 'User doesn\'t exist',
-              type: 'error',
-              confirmButtonText: 'Close'
-            })
+          } else {
+            let message = {
+              handle: handle,
+              message: this.message
+            }
+            await this.$socket.emit('chat', message)
             this.message = ''
           }
-        }else{
-          let message = {
-            handle: handle,
-            message: this.message
-          }
-          await this.$socket.emit('chat', message)
-          this.message = ''
         }
+      } else {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Must Sign In To Chat',
+          type: 'error',
+          confirmButtonText: 'Close'
+        })
+        this.message = ''
       }
     },
 

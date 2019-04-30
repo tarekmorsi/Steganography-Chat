@@ -13,8 +13,8 @@ module.exports = {
                       password: Joi.string().min(5).max(10).required()
                     }),
     AuthenticateSchema: Joi.object().keys({
-                          username : Joi.string().min(5).max(10).required(),
-                          password: Joi.string().min(5).max(10).required()
+                          username : Joi.string().required(),
+                          password: Joi.string().required()
                         }),
 
 }

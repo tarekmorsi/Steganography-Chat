@@ -92,7 +92,7 @@ const userController = {
   			if (response.data) {
   				return res.status(200).json(response)
   			} else {
-  				return res.status(response.error.code).json(response)
+  				return res.status(response.error.code).json({ error: response.error.message })
   			}
       }
     } catch (err) {

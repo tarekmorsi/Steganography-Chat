@@ -52,12 +52,8 @@ export default {
   },
 
   async checkIfUserExists (username) {
-    try{
-      let data = await Axios.get(env.URL + '/user/checkIfUserExists/' + username)
-      return data
-    }catch(err){
-      console.log(err)
-    }
+    let data = await Axios.get(env.URL + '/user/checkIfUserExists/' + username)
+    return data
   }
 
 }
