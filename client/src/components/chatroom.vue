@@ -93,6 +93,7 @@ export default {
 
   created () {
     auth.checkAuth()
+    handle = auth.getUser().username
   },
 
   mounted () {
@@ -122,6 +123,10 @@ export default {
       await auth.checkAuth()
       if (this.user.authenticated) {
         let handle = this.$store.getters.HANDLE
+        if(handle === ''){
+          handle = auth.getUser().username
+        }
+
         if (this.message) {
           if (this.message.charAt(0) === '@') {
             var receiver = this.message.replace(/ .*/, '').slice(1)
@@ -174,7 +179,7 @@ export default {
     },
 
     isMyHandle (handle) {
-      if (handle === this.$store.getters.HANDLE) {
+      if (handle === auth.getUser().username) {
         return true
       } else {
         return false

@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import Axios from 'axios'
 import env from '@/env/'
+import auth from '@/auth/'
+
 
 Vue.use(Vuex)
 
@@ -16,6 +18,10 @@ export const store = new Vuex.Store({
       return state.chats
     },
     HANDLE: state => {
+      // if(state.handle === ''){
+      //   state.handle = auth.getUser().username
+      //   console.log(auth.getUser().username)
+      // }
       return state.handle
     }
   },
