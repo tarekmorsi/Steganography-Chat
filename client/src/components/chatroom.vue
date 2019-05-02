@@ -112,7 +112,9 @@ export default {
 
   created () {
     auth.checkAuth()
-    this.handle = auth.getUser().username
+    if (this.user.authenticated) {
+      this.handle = auth.getUser().username
+    }
   },
 
   mounted () {
@@ -129,7 +131,9 @@ export default {
 
   sockets: {
     connect: function () {
-      this.$socket.emit('join', {username: auth.getUser().username})
+      if(this.user.authentication){
+        this.$socket.emit('join', {username: auth.getUser().username})
+      }
       // console.log('socket connected')
     },
     chat: function (val) {
