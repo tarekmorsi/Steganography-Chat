@@ -145,9 +145,9 @@ export default {
     async sendMessage () {
       await auth.checkAuth()
       if (this.user.authenticated) {
-        let handle2 = this.$store.getters.HANDLE
-        if (handle2 === '') {
-          handle2 = auth.getUser().username
+        let handle = this.$store.getters.HANDLE
+        if (handle === '') {
+          handle = auth.getUser().username
         }
 
         if (this.message) {
@@ -158,7 +158,7 @@ export default {
               this.message = this.message.substr(this.message.indexOf(' ') + 1)
               if (this.message.charAt(0) !== '@') {
                 let message = {
-                  handle: handle2,
+                  handle: handle,
                   receiver: receiver,
                   message: this.encryptText(this.message)
                 }
@@ -183,7 +183,7 @@ export default {
             }
           } else {
             let message = {
-              handle: handle2,
+              handle: handle,
               message: this.encryptText(this.message)
             }
             await this.$socket.emit('chat', message)
@@ -223,7 +223,7 @@ export default {
     },
 
 
-    decryptText: function(chat, callback) {
+    decryptText: function(chat, message, callback) {
       var mask =  new ImageMask({
           debug :  false,
           charSize :  16,
@@ -234,7 +234,7 @@ export default {
        var canvas = this.$refs.canvas;
        var preview = this.$refs.preview;
 
-      this.passImageToCanvas(mask, canvas, chat, function(msg){
+      this.passImageToCanvas(mask, canvas, message, function(msg){
         preview.src = '/static/desert.png'
         callback(msg)
       })
@@ -254,17 +254,28 @@ export default {
 
     decryptAll(array){
       this.chatsAll = []
+      var self = this;
+      // console.log(array)
+
       var a;
       for (a in array) {
-        var self = this;
 
-        this.decryptText(array[a].message, function(msg){
+        let single_chat = array[a]
+        let message = array[a].message
+
+        this.decryptText(single_chat, message, function(msg){
+
+          // console.log(single_chat)
+
           let message = {
-            handle: array[a].handle,
-            receiver: array[a].receiver,
+            handle: single_chat.handle,
+            receiver: single_chat.receiver,
             message: msg
           }
-
+          //
+          // // console.log(message.handle)
+          // // console.log(message.receiver)
+          // // console.log('--------------')
           self.chatsAll.push(message)
           // console.log(self.CHATS);
 
@@ -274,6 +285,7 @@ export default {
     },
 
     isMyHandle (handle) {
+      // console.log(auth.getUser().username)
       if (handle === auth.getUser().username) {
         return true
       } else {
