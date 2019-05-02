@@ -125,7 +125,7 @@ app.get('/chat/:handle', async (req,res) => {
 			var d = new Date(b.created);
 			return c-d;
 		});
-		
+
 		res.send(finalRes)
 	} catch (err) {
 		res.status(400).json({ error: err.errmsg })

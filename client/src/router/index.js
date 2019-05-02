@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import home from '@/components/home'
 import login from '@/components/login'
 import chatroom from '@/components/chatroom'
+import test from '@/components/test'
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/chatroom',
       name: 'chatroom',
       component: chatroom
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: test
     }
   ]
 })

@@ -17,7 +17,7 @@
         </div>
 
         <ul class="messages" ref="chatContainer">
-          <div v-for="chat in CHATS">
+          <div v-for="chat in this.chatsAll">
 
             <li v-if="isMyHandle(chat.handle)" class="message right appeared">
               <div class="avatar" style="padding-top: 22px;">{{chat.handle}}</div>
@@ -65,6 +65,10 @@
 
   </div>
 
+
+  <img src="/static/desert.png" ref="preview">
+  <canvas style="display:none;" ref='canvas'></canvas>
+
 </div>
 </template>
 
@@ -80,20 +84,35 @@ export default {
     return {
       user: auth.user,
       handle: '',
-      message: ''
+      message: '',
+      chatsAll: []
     }
   },
 
   components: {
   },
 
+  watch: {
+    CHATS(){
+      this.decryptAll(this.$store.getters.CHATS)
+    }
+  },
+
   computed: {
-    ...mapGetters(['CHATS', 'HANDLE'])
+
+    async CHATS() {
+        return this.$store.getters.CHATS
+    },
+
+    HANDLE() {
+        return this.$store.getters.HANDLE;
+    }
+
   },
 
   created () {
     auth.checkAuth()
-    handle = auth.getUser().username
+    this.handle = auth.getUser().username
   },
 
   mounted () {
@@ -122,9 +141,9 @@ export default {
     async sendMessage () {
       await auth.checkAuth()
       if (this.user.authenticated) {
-        let handle = this.$store.getters.HANDLE
-        if(handle === ''){
-          handle = auth.getUser().username
+        let handle2 = this.$store.getters.HANDLE
+        if (handle2 === '') {
+          handle2 = auth.getUser().username
         }
 
         if (this.message) {
@@ -135,9 +154,9 @@ export default {
               this.message = this.message.substr(this.message.indexOf(' ') + 1)
               if (this.message.charAt(0) !== '@') {
                 let message = {
-                  handle: handle,
+                  handle: handle2,
                   receiver: receiver,
-                  message: this.message
+                  message: this.encryptText(this.message)
                 }
                 await this.$socket.emit('chatprivate', message)
                 this.message = ''
@@ -160,8 +179,8 @@ export default {
             }
           } else {
             let message = {
-              handle: handle,
-              message: this.message
+              handle: handle2,
+              message: this.encryptText(this.message)
             }
             await this.$socket.emit('chat', message)
             this.message = ''
@@ -175,6 +194,78 @@ export default {
           confirmButtonText: 'Close'
         })
         this.message = ''
+      }
+    },
+
+    encryptText: function (msg) {
+      var mask =  new ImageMask({
+          debug :  false,
+          charSize :  16,
+          mixCount :  2,
+          lengthSize :  24
+       });
+
+       var canvas = this.$refs.canvas
+
+       var message = msg;
+    	 var preview = this.$refs.preview;
+       preview.src = '/static/desert.png'
+    	 var ctx = canvas.getContext('2d');
+       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    	 ctx.drawImage(preview, 0, 0, preview.width, preview.height);
+    	 mask.hideText(canvas, message);
+
+       return canvas.toDataURL();
+    },
+
+
+    decryptText: function(chat, callback) {
+      var mask =  new ImageMask({
+          debug :  false,
+          charSize :  16,
+          mixCount :  2,
+          lengthSize :  24
+       });
+
+       var canvas = this.$refs.canvas;
+       var preview = this.$refs.preview;
+
+      this.passImageToCanvas(mask, canvas, chat, function(msg){
+        preview.src = '/static/desert.png'
+        callback(msg)
+      })
+    },
+
+
+    passImageToCanvas(mask, canvas, chat, cb){
+        var ctx = canvas.getContext('2d');
+        var img = new Image;
+        img.onload = async function(message) {
+            ctx.drawImage(img,0,0);
+            var message = await mask.revealText(canvas);
+            cb(message)
+        };
+        img.src = chat
+    },
+
+    decryptAll(array){
+      this.chatsAll = []
+      var a;
+      for (a in array) {
+        var self = this;
+
+        this.decryptText(array[a].message, function(msg){
+          let message = {
+            handle: array[a].handle,
+            receiver: array[a].receiver,
+            message: msg
+          }
+
+          self.chatsAll.push(message)
+          // console.log(self.CHATS);
+
+        })
+
       }
     },
 

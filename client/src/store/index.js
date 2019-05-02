@@ -17,11 +17,8 @@ export const store = new Vuex.Store({
     CHATS: state => {
       return state.chats
     },
+
     HANDLE: state => {
-      // if(state.handle === ''){
-      //   state.handle = auth.getUser().username
-      //   console.log(auth.getUser().username)
-      // }
       return state.handle
     }
   },
