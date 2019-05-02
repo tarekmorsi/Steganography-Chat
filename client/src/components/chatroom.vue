@@ -272,11 +272,20 @@ export default {
             receiver: single_chat.receiver,
             message: msg
           }
+
+
           //
           // // console.log(message.handle)
           // // console.log(message.receiver)
           // // console.log('--------------')
           self.chatsAll.push(message)
+
+          self.chatsAll.sort(function(a,b){
+      			var c = new Date(a.created);
+      			var d = new Date(b.created);
+      			return c-d;
+      		});
+
           // console.log(self.CHATS);
 
         })
