@@ -1,6 +1,9 @@
 # Steganography-Chat
 
-Steganography-Chat is a javascript web app.
+Steganography-Chat is a javascript web application that consists of a single Chatroom that implements Steganography. Users can exchange text messages that are encrypted and concealed in an image before being sent to other users.
+
+![Alt Text](https://media.giphy.com/media/ukqUOkgT28BrbJNVSR/giphy.gif)
+
 
 ## Installation
 
