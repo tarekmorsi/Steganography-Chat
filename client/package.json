@@ -15,7 +15,7 @@
     "save": "^2.3.3",
     "sweetalert2": "^8.9.0",
     "vue": "^2.5.2",
-    "vue-moment": "^4.0.0",
+    "vue-moment": "^4.1.0",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",
     "vue-socket.io": "^3.0.7",
